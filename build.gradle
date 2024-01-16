@@ -1,0 +1,108 @@
+plugins {
+    id 'com.android.library' version '8.0.2' apply true
+    id 'org.jetbrains.kotlin.android' version '1.8.20' apply true
+    id 'maven-publish'
+}
+
+
+ext {
+    urlMaven = System.getProperty("urlMaven", "");
+    usernameMaven = System.getProperty("usernameMaven", "");
+    passwordMaven = System.getProperty("passwordMaven", "");
+}
+
+
+if (project.hasProperty("passwordMaven")) {
+    ext.passwordMaven = project.getProperty("passwordMaven")
+} else {
+    ext.passwordMaven = ""
+}
+
+android {
+    namespace 'com.deuna.maven'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 33
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'com.deuna.maven'
+            artifactId 'deunasdk'
+            version ' '
+            artifact("$buildDir/outputs/aar/android-debug.aar")
+            pom {
+                name = 'Android SDK DEUNA'
+                description = 'SDK for use in external merchants DEUNA'
+                url = 'https://github.com/DUNA-E-Commmerce/Sdk-Clients/tree/develop'
+                developers {
+                    developer {
+                        id = 'deunadevelopers'
+                        name = 'DEUNA Developers'
+                        email = 'developers@deuna.com'
+                    }
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/DUNA-E-Commmerce/Sdk-Clients.git'
+                    developerConnection = 'scm:git:ssh://ithub.com:DUNA-E-Commmerce/Sdk-Clients.git'
+                    url = 'https://github.com/DUNA-E-Commmerce/Sdk-Clients/tree/develop'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url urlMaven
+            credentials {
+                username = usernameMaven
+                password = passwordMaven
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+}
